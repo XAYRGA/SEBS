@@ -1,0 +1,214 @@
+{
+  "GameName": "Super Mario Sunshine",
+  "GameVersion": "Niiice.",
+  "InitalizationSectionBytes": 893,
+  "Categories": [
+    {
+      "CategoryIndex": 0,
+      "RelocatableDataStart": 893,
+      "RelocatableDataLength": 207,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 47,
+          "TrackID": 0
+        },
+        {
+          "OpenInstructionOffset": 52,
+          "TrackID": 1
+        }
+      ],
+      "JumpTable": {
+        "InstructionInnerOffset": 97,
+        "SuggestedLength": 42
+      }
+    },
+    {
+      "CategoryIndex": 1,
+      "RelocatableDataStart": 6479,
+      "RelocatableDataLength": 209,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 57,
+          "TrackID": 2
+        },
+        {
+          "OpenInstructionOffset": 62,
+          "TrackID": 3
+        },
+        {
+          "OpenInstructionOffset": 67,
+          "TrackID": 4
+        }
+      ],
+      "JumpTable": {
+        "InstructionInnerOffset": 100,
+        "SuggestedLength": 407
+      }
+    },
+    {
+      "CategoryIndex": 2,
+      "RelocatableDataStart": 15719,
+      "RelocatableDataLength": 209,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 72,
+          "TrackID": 5
+        },
+        {
+          "OpenInstructionOffset": 77,
+          "TrackID": 6
+        },
+        {
+          "OpenInstructionOffset": 82,
+          "TrackID": 7
+        },
+        {
+          "OpenInstructionOffset": 87,
+          "TrackID": 8
+        },
+        {
+          "OpenInstructionOffset": 92,
+          "TrackID": 9
+        }
+      ],
+      "JumpTable": {
+        "InstructionInnerOffset": 100,
+        "SuggestedLength": 399
+      }
+    },
+    {
+      "CategoryIndex": 3,
+      "RelocatableDataStart": 43883,
+      "RelocatableDataLength": 209,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 97,
+          "TrackID": 10
+        },
+        {
+          "OpenInstructionOffset": 102,
+          "TrackID": 11
+        },
+        {
+          "OpenInstructionOffset": 107,
+          "TrackID": 12
+        },
+        {
+          "OpenInstructionOffset": 112,
+          "TrackID": 13
+        },
+        {
+          "OpenInstructionOffset": 117,
+          "TrackID": 14
+        }
+      ],
+      "JumpTable": {
+        "InstructionInnerOffset": 100,
+        "SuggestedLength": 185
+      }
+    },
+    {
+      "CategoryIndex": 4,
+      "RelocatableDataStart": 51136,
+      "RelocatableDataLength": 209,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 122,
+          "TrackID": 15
+        },
+        {
+          "OpenInstructionOffset": 140,
+          "TrackID": 0
+        }
+      ],
+      "JumpTable": {
+        "InstructionInnerOffset": 100,
+        "SuggestedLength": 94
+      }
+    },
+    {
+      "CategoryIndex": 5,
+      "RelocatableDataStart": 56694,
+      "RelocatableDataLength": 207,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 145,
+          "TrackID": 1
+        },
+        {
+          "OpenInstructionOffset": 150,
+          "TrackID": 2
+        },
+        {
+          "OpenInstructionOffset": 155,
+          "TrackID": 3
+        }
+      ],
+      "JumpTable": {
+        "InstructionInnerOffset": 97,
+        "SuggestedLength": 36
+      }
+    },
+    {
+      "CategoryIndex": 6,
+      "RelocatableDataStart": 58040,
+      "RelocatableDataLength": 210,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 160,
+          "TrackID": 4
+        },
+        {
+          "OpenInstructionOffset": 165,
+          "TrackID": 5
+        },
+        {
+          "OpenInstructionOffset": 170,
+          "TrackID": 6
+        }
+      ],
+      "JumpTable": {
+        "InstructionInnerOffset": 100,
+        "SuggestedLength": 17
+      }
+    } ,
+    {
+      "CategoryIndex": 7,
+      "RelocatableDataStart": 3306,
+      "RelocatableDataLength": 212,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 175,
+          "TrackID": 7
+        }
+      ],
+      "JumpTable": {
+        "InstructionInnerOffset": 100,
+        "SuggestedLength": 304
+      }
+    },
+    {
+      "CategoryIndex": 8,
+      "RelocatableDataStart": 34399,
+      "RelocatableDataLength": 348,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 180,
+          "TrackID": 8
+        },
+        {
+          "OpenInstructionOffset": 185,
+          "TrackID": 9
+        },
+        {
+          "OpenInstructionOffset": 190,
+          "TrackID": 10
+        }
+      ],
+      "JumpTable": {
+        "InstructionInnerOffset": 126,
+        "SuggestedLength": 450
+      }
+    } 
+  ]
+}

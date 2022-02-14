@@ -91,15 +91,16 @@ namespace SEBS
 
         
                 var Address = Reader.ReadU24();
-                Console.WriteLine($"\t{Address:X}");
+                //Console.WriteLine($"\t{Address:X}");
                 var anchor = Reader.BaseStream.Position;
                 var BED = new SEBSBMSDisassembler(Reader, soundName, (int)Address, cat.DummyAddress);
-                BED.AllowImplicitCallTermination = DisableImplicit;
+                BED.AllowImplicitCallTermination = !DisableImplicit;
                 BMSEvent bb;
                 while ((bb = BED.disassembleNext()) != BMSEvent.FINISH)
                     if (bb == BMSEvent.RETURN || bb == BMSEvent.REQUEST_STOP)
                         break;
                 BED.disassembleQueueItems();
+                BED.fixBrokenLabels();
                 Reader.BaseStream.Position = anchor;
                 File.WriteAllText($"{to_folder}/{soundName}.txt", BED.output.ToString());
                 SECat.includes[i] = $"{soundName}.txt";

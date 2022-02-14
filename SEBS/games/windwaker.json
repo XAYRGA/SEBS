@@ -1,0 +1,238 @@
+{
+  "GameName": "The Legend of Zelda: Wind Waker",
+  "GameVersion": "Niiice.",
+  "InitalizationSectionBytes": 412,
+  "Categories": [
+    {
+      "CategoryIndex": 0,
+      "RelocatableDataStart": 412,
+      "RelocatableDataLength": 208,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 29,
+          "TrackID": 0
+        },
+        {
+          "OpenInstructionOffset": 34,
+          "TrackID": 1
+        },
+        {
+          "OpenInstructionOffset": 39,
+          "TrackID": 2
+        },
+        {
+          "OpenInstructionOffset": 44,
+          "TrackID": 3
+        }
+      ],
+      "JumpTable": {
+        "InstructionOffset": 515,
+        "InstructionInnerOffset": 103,
+        "SuggestedLength": 271
+      }
+    },
+    {
+      "CategoryIndex": 1,
+      "RelocatableDataStart": 19500,
+      "RelocatableDataLength": 208,
+      "DummyAddress": 26220,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 49,
+          "TrackID": 4
+        },
+        {
+          "OpenInstructionOffset": 54,
+          "TrackID": 5
+        },
+        {
+          "OpenInstructionOffset": 59,
+          "TrackID": 6
+        },
+        {
+          "OpenInstructionOffset": 64,
+          "TrackID": 7
+        }
+      ],
+      "JumpTable": {
+        "InstructionOffset": 19603,
+        "InstructionInnerOffset": 103,
+        "SuggestedLength": 167
+      }    
+    }, 
+    {
+      "CategoryIndex": 2,
+      "RelocatableDataStart": 25067,
+      "RelocatableDataLength": 208,
+      "DummyAddress": 26220,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 69,
+          "TrackID": 8
+        },
+        {
+          "OpenInstructionOffset": 74,
+          "TrackID": 9
+        },
+        {
+          "OpenInstructionOffset": 79,
+          "TrackID": 10
+        },
+        {
+          "OpenInstructionOffset": 84,
+          "TrackID": 11
+        }
+      ],
+      "JumpTable": {
+        "InstructionOffset": 25170,
+        "InstructionInnerOffset": 103,
+        "SuggestedLength": 166
+      }
+    },
+    {
+      "CategoryIndex": 3,
+      "RelocatableDataStart": 44925,
+      "RelocatableDataLength": 208,
+      "DummyAddress": 26220,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 89,
+          "TrackID": 12
+        },
+        {
+          "OpenInstructionOffset": 94,
+          "TrackID": 13
+        },
+        {
+          "OpenInstructionOffset": 99,
+          "TrackID": 14
+        },
+        {
+          "OpenInstructionOffset": 104,
+          "TrackID": 15
+        }
+      ],
+      "JumpTable": {
+        "InstructionOffset": 25170,
+        "InstructionInnerOffset": 103,
+        "SuggestedLength": 65
+      }
+    },
+    {
+      "CategoryIndex": 4,
+      "RelocatableDataStart": 49701,
+      "RelocatableDataLength": 208,
+      "DummyAddress": 26220,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 122,
+          "TrackID": 0
+        },
+        {
+          "OpenInstructionOffset": 127,
+          "TrackID": 1
+        },
+        {
+          "OpenInstructionOffset": 132,
+          "TrackID": 2
+        },
+        {
+          "OpenInstructionOffset": 137,
+          "TrackID": 3
+        }
+      ],
+      "JumpTable": {
+        "InstructionOffset": 25170,
+        "InstructionInnerOffset": 103,
+        "SuggestedLength": 404
+      }
+    },
+    {
+      "CategoryIndex": 5,
+      "RelocatableDataStart": 63819,
+      "RelocatableDataLength": 208,
+      "DummyAddress": 26220,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 142,
+          "TrackID": 4
+        },
+        {
+          "OpenInstructionOffset": 147,
+          "TrackID": 5
+        },
+        {
+          "OpenInstructionOffset": 152,
+          "TrackID": 6
+        },
+        {
+          "OpenInstructionOffset": 157,
+          "TrackID": 7
+        }
+      ],
+      "JumpTable": {
+        "InstructionOffset": 25170,
+        "InstructionInnerOffset": 103,
+        "SuggestedLength": 419
+      }
+    },
+    {
+      "CategoryIndex": 6,
+      "RelocatableDataStart": 85533,
+      "RelocatableDataLength": 208,
+      "DummyAddress": 26220,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 162,
+          "TrackID": 8
+        },
+        {
+          "OpenInstructionOffset": 167,
+          "TrackID": 9
+        },
+        {
+          "OpenInstructionOffset": 172,
+          "TrackID": 10
+        },
+        {
+          "OpenInstructionOffset": 177,
+          "TrackID": 11
+        }
+      ],
+      "JumpTable": {
+        "InstructionOffset": 25170,
+        "InstructionInnerOffset": 103,
+        "SuggestedLength": 599
+      }
+    },
+    {
+      "CategoryIndex": 7,
+      "RelocatableDataStart": 108294,
+      "RelocatableDataLength": 208,
+      "DummyAddress": 26220,
+      "OpenInstructions": [
+        {
+          "OpenInstructionOffset": 182,
+          "TrackID": 12
+        },
+        {
+          "OpenInstructionOffset": 187,
+          "TrackID": 13
+        },
+        {
+          "OpenInstructionOffset": 192,
+          "TrackID": 14
+        },
+        {
+          "OpenInstructionOffset": 197,
+          "TrackID": 15
+        }
+      ],
+      "JumpTable": {
+        "InstructionOffset": 25170,
+        "InstructionInnerOffset": 103,
+        "SuggestedLength": 111
+      }
+    }
+  ]
+}

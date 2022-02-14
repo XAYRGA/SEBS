@@ -23,6 +23,7 @@ namespace SEBS
         INTERRUPT = 2,
         ENVELOPE = 3,
         JUMPTABLE = 4,
+        EXTERNAL = 5,
     }
 
     internal class SEBSDissasemblerQueueItem
@@ -102,13 +103,14 @@ namespace SEBS
             else if (noteOnType == 1) // noteonr
                 output.AppendLine($"NOTEON2 {note:X} {voiceflags} {velocity:X} {reader.ReadByte():X} {reader.ReadByte():X}");
             else if (noteOnType == 2) // noteonrd
-                output.AppendLine($"NOTEON3 {note:X} {voiceflags} {velocity:X} {reader.ReadByte():X} {reader.ReadByte():X}  {reader.ReadByte():X} ");
+                output.AppendLine($"NOTEON3 {note:X} {voiceflags} {velocity:X} {reader.ReadByte():X} {reader.ReadByte():X} {reader.ReadByte():X}");
             else if (noteOnType == 3)// Noteonrdl 
-                output.AppendLine($"NOTEON4 {note:X} {voiceflags} {velocity:X} {reader.ReadByte():X} {reader.ReadByte():X} {reader.ReadByte():X}  {reader.ReadByte():X}");
+                output.AppendLine($"NOTEON4 {note:X} {voiceflags} {velocity:X} {reader.ReadByte():X} {reader.ReadByte():X} {reader.ReadByte():X} {reader.ReadByte():X}");
         }
 
-        public BMSEvent disassembleNext()
+        public BMSEvent disassembleNext(int override_byte=-1)
         {
+
 
             var currentAddress = reader.BaseStream.Position;
             SEBSDisasssemblerLabel labelTag;
@@ -128,17 +130,25 @@ namespace SEBS
                 return BMSEvent.FINISH;
             }
 
+            byte opcode = 0;
+            if (override_byte == -1)
+                opcode = reader.ReadByte();
+            else
+                opcode = (byte)override_byte;
 
-            var opcode = reader.ReadByte();
             BMSEvent ev = BMSEvent.INVALID;
             try {ev = (BMSEvent)opcode;} catch (Exception ex)  
             {
                 throw new Exception($"BMS Opcode invalid 0x{opcode:X} at 0x{reader.BaseStream.Position:X}");
             }
-            Console.WriteLine($"{ev} - {currentAddress:X}");
+            //if (stackName=="MSD_SE_ERASE_SCRAWL_CONT") 
+                //Console.WriteLine($"{ev} - {currentAddress:X}");
 
             if (opcode < 0x80)
-                parseNoteOnEvent(opcode);               
+            {
+                parseNoteOnEvent(opcode);
+                return BMSEvent.NOTE_ON; // LMAO. Had to do this because of NOTE_ON 3
+            }
             else if (opcode > 0x80 & opcode < 0x87)
                 output.AppendLine($"NOTEOFF {opcode & 0x7}");
             else
@@ -157,7 +167,7 @@ namespace SEBS
                             if (destinationRegister == 6) // overflow register for instrument and bank. >> 8 is bank, &8 is instrument.                             
                                 output.AppendLine($"SET_BANK_INST {reader.ReadByte()} {reader.ReadByte()}");
                             else
-                                output.AppendLine($"PARAM_SET_16 {destinationRegister:X} {reader.ReadInt16()}");                            
+                                output.AppendLine($"PARAM_SET_16 {destinationRegister:X} {reader.ReadInt16()}");
                         }
                         break;
                     case BMSEvent.OPENTRACK:
@@ -167,7 +177,7 @@ namespace SEBS
                             var label = getLabel("TRACK", address, $"OPEN");
                             output.AppendLine($"OPENTRACK {trackID:X} {label}");
                             var outP = -1;
-                            if (!tryBackseekLabel4Tracks((int)address,label))
+                            if (!tryBackseekLabel4Tracks((int)address, label))
                                 queueItems.Enqueue(new SEBSDissasemblerQueueItem()
                                 {
                                     address = address,
@@ -193,13 +203,12 @@ namespace SEBS
                             else
                             {
                                 // this lets us go backwards.
-                                if (!tryBackseekLabel((int)address,label))
-                                   if (!labelDeduplicator.ContainsKey((int)address))
-                                    Console.WriteLine($"{stackName} CANNOT FIND BACKLABEL REFERENCE!!!!"); // I should throw. 
-         
+                                if (!tryBackseekLabel((int)address, label))
+                                    if (!labelDeduplicator.ContainsKey((int)address))
+                                        Console.WriteLine($"{stackName} CANNOT FIND BACKLABEL REFERENCE!!!!"); // I should throw. 
                             }
                             output.AppendLine($"JMP {flags:X} {label}");
-                            if (flags==0 && AllowImplicitCallTermination)
+                            if (flags == 0 && AllowImplicitCallTermination)
                             {
                                 output.AppendLine("# JMP 0: IMPLICIT CALL TERMINATION");
                                 return BMSEvent.REQUEST_STOP;
@@ -209,23 +218,23 @@ namespace SEBS
                     case BMSEvent.CALL:
                         {
                             var flags = reader.ReadByte();
-                            if (flags==0xC0) {
+                            if (flags == 0xC0)
+                            {
                                 var register = reader.ReadByte();
                                 var address = reader.ReadU24();
                                 var label = getLabel("JUMPTABLE", (int)address);
-                     
+
                                 queueItems.Enqueue(new SEBSDissasemblerQueueItem()
-                                    {
-                                        address = (int)address,
-                                        label = label,
-                                        type = SEBSDisassemblerQueueItemType.JUMPTABLE
-                                    });
+                                {
+                                    address = (int)address,
+                                    label = label,
+                                    type = SEBSDisassemblerQueueItemType.JUMPTABLE
+                                });
                                 output.AppendLine($"CALLTABLE {flags:X} {label}");
-                            } else
+                            }
+                            else
                             {
-                            
                                 var address = reader.ReadU24();
-                    
                                 var label = getLabel("CALL", (int)address);
                                 if (address >= baseAddress) // if its a TARGET we don't need to disassemble it. 
                                     queueItems.Enqueue(new SEBSDissasemblerQueueItem()
@@ -236,7 +245,6 @@ namespace SEBS
                                     });
                                 output.AppendLine($"CALL {flags:X} {label}");
                             }
-                       
                         }
                         break;
                     case BMSEvent.SIMPLEENV:
@@ -268,6 +276,44 @@ namespace SEBS
                                 });
                             output.AppendLine($"INTERRUPT {ilevel:X} {label}");
                         }
+                        break;
+                    case BMSEvent.OPOVERRIDE_4:
+                        {
+                        
+                            var instruction = reader.ReadByte();
+                            var mask = reader.ReadByte();
+                            output.Append($"OVERRIDE4 {instruction:X} {mask:X} ");
+                            var @event = disassembleNext(instruction);
+                            output.AppendLine($"$WRITEARGS b{reader.ReadByte():X} b{reader.ReadByte():X} b{reader.ReadByte():X} b{reader.ReadByte():X}");
+                        }
+                        break;
+                    case BMSEvent.PRINTF:
+                        {
+                            var references = 0;
+                            var message = "";
+                            char last;
+                            while ((last = (char)reader.ReadByte())!=0x00)
+                            {
+                                if (last == '%')
+                                    references++;
+                                message += last;
+                            }
+                            output.AppendLine("PRINTF " + message);
+                            output.Append("$WRITEARGS ");
+                            for (int i=0; i<references; i++) 
+                                output.Append($"b{reader.ReadByte()}");
+
+                            output.AppendLine();
+                        }
+                        break;
+                    case BMSEvent.CLOSETRACK:
+                        output.AppendLine($"CLOSETRACK {reader.ReadByte():X}");
+                        break;
+                    case BMSEvent.SIMPLEOSC:
+                        output.AppendLine($"SIMPLEOSC {reader.ReadByte():X}");
+                        break;
+                    case BMSEvent.TRANSPOSE:
+                        output.AppendLine($"TRANSPOSE {reader.ReadByte():X}");
                         break;
                     case BMSEvent.CLRI:
                         output.AppendLine("CEARINTERRUPT");
@@ -305,8 +351,14 @@ namespace SEBS
                     case BMSEvent.CHILDWRITEPORT:
                         output.AppendLine($"CHILDWRITEPORT {reader.ReadByte()}  {reader.ReadByte()}");
                         break;
+                    case BMSEvent.PERF_S8_DUR_U16:
+                        output.AppendLine($"PERF_S8_DUR_U16 {reader.ReadByte():X} {reader.ReadSByte()} {reader.ReadUInt16()} ");
+                        break;
+                    case BMSEvent.PERF_S16_NODUR:
+                        output.AppendLine($"PERF_S16 {reader.ReadByte():X} {reader.ReadUInt16()} ");
+                        break;
                     case BMSEvent.PERF_S16_DUR_U8_9E:
-                        output.AppendLine($"PERF_S16_U8_9E {reader.ReadByte():X} {reader.ReadUInt16()} {reader.ReadByte():X}");
+                        output.AppendLine($"PERF_S16_U8_9E {reader.ReadByte():X} {reader.ReadInt16()} {reader.ReadByte():X}");
                         break;
                     case BMSEvent.PERF_S16_DUR_U8:
                         output.AppendLine($"PERF_S16_U8 {reader.ReadByte():X} {reader.ReadUInt16()} {reader.ReadByte():X}");
@@ -324,15 +376,14 @@ namespace SEBS
                         {
                             var op = reader.ReadByte();
                             //Console.WriteLine($"{op:X}");
-                            if ((op&0x0F)==0x0C)
+                            if ((op & 0x0F) == 0x0C)
                                 output.AppendLine($"PARAM_BITWISE_C {op:X} {reader.ReadByte():X} {reader.ReadSByte()}  {reader.ReadByte():X}");
-                            else if ((op&0x0F)==0x08)
+                            else if ((op & 0x0F) == 0x08)
                                 output.AppendLine($"PARAM_BITWISE_8 {op:X} {reader.ReadByte():X} {reader.ReadByte():X}");
                             else
                                 output.AppendLine($"PARAM_BITWISE {op:X} {reader.ReadByte():X} {reader.ReadByte():X}");
                         }
                         break;
-                 
                     case BMSEvent.PERF_S8_DUR_U8:
                         output.AppendLine($"PERF_S8_U8 {reader.ReadByte()} {reader.ReadSByte()} {reader.ReadByte()}");
                         break;
@@ -347,6 +398,9 @@ namespace SEBS
                         break;
                     case BMSEvent.PARAM_CMP_8:
                         output.AppendLine($"PAR_CMP_8 {reader.ReadByte():X} {reader.ReadByte():X}");
+                        break;
+                    case BMSEvent.PARAM_CMP_R:
+                        output.AppendLine($"PAR_CMP_R {reader.ReadByte():X} {reader.ReadByte():X}");
                         break;
                     case BMSEvent.SETPARAM_90:
                         output.AppendLine($"PAR_SET_90 {reader.ReadByte():X} {reader.ReadByte():X}");
@@ -469,14 +523,47 @@ namespace SEBS
             }
             output.AppendLine("STOP\r\n#End Envelope");
         }
-        public void disassembleQueueItems()
+
+        public void fixBrokenLabels()
+        {
+            var broken = false;
+            foreach (KeyValuePair<long, SEBSDisasssemblerLabel> bk in refLabels)
+            {
+                broken = true;
+                if (bk.Value.referenced == false)
+                {
+                    var b = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("Warning: ");
+                    Console.ForegroundColor = b;
+                    Console.WriteLine($" [{stackName}] Jump label without reference address. ");
+
+                    queueItems.Enqueue(new SEBSDissasemblerQueueItem()
+                    {
+                        address = (int)bk.Key,
+                        label = bk.Value.label,
+                        type = SEBSDisassemblerQueueItemType.EXTERNAL
+                    });
+                }
+            }
+            if (broken == true)
+                disassembleQueueItems(true);
+            else
+                return;
+
+
+        }
+        public void disassembleQueueItems(bool fixingRefs = false)
         {
             while (queueItems.Count > 0)
             {
                 var qI = queueItems.Dequeue();
                 if (callDeduplicator.ContainsKey(qI.address)) // dont generate multiple calls
                     continue;
-                callDeduplicator[qI.address] = true;    
+                callDeduplicator[qI.address] = true;
+
+                if (refLabels.ContainsKey(qI.address))
+                    refLabels[qI.address].referenced = true; // prevents messy references.
 
                 void generateBanner()
                 {
@@ -505,12 +592,27 @@ namespace SEBS
                         }
                     case SEBSDisassemblerQueueItemType.CALL:
                         {
+                        
                             generateBanner();
                             while ((baby = disassembleNext()) != BMSEvent.FINISH)
-                                if (baby == BMSEvent.RETURN)
+                                if (baby == BMSEvent.RETURN  || baby == BMSEvent.REQUEST_STOP)
                                     break;
                             break;
                         }
+                    case SEBSDisassemblerQueueItemType.EXTERNAL:
+                        generateBanner();
+                        if (fixingRefs)
+                        {
+                            var b = Console.ForegroundColor;
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write("Notice: ");
+                            Console.ForegroundColor = b;
+                            Console.WriteLine($" [{stackName}] Resolved EXTERNAL label reference ({qI.label}) ");
+                        }
+                        while ((baby = disassembleNext()) != BMSEvent.FINISH)
+                            if (baby == BMSEvent.RETURN || baby == BMSEvent.REQUEST_STOP)
+                                break;
+                        break;
                     case SEBSDisassemblerQueueItemType.INTERRUPT:
                         generateBanner();
                         while ((baby = disassembleNext()) != BMSEvent.FINISH)

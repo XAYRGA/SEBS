@@ -69,7 +69,10 @@
     </None>
     <None Include="App.config" />
     <None Include="beio\license.bsd" />
+    <None Include="games\sunshine.json" />
+    <None Include="games\windwaker.json" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
