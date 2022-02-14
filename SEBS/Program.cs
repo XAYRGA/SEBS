@@ -51,7 +51,7 @@ namespace SEBS
             {
                 "unpack",
                 "se.scom",
-                "sunshine.json",
+                "games/sunshine.json",
                 "sunshine",
                 "-asnfile",
                 "mSound.asn"

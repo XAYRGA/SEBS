@@ -88,5 +88,13 @@ namespace Be.IO
                 BigEndian.WriteInt16(p, (short)value);
             OutStream.Write(buffer, 0, 2);
         }
+
+        public void WriteU24(int value)
+        {
+            Write((byte)((value >> 16) & 0xFF));
+            Write((byte)((value >> 8) & 0xFF));
+            Write((byte)(value & 0xFF));
+        }
+
     }
 }

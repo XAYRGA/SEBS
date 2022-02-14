@@ -77,7 +77,7 @@ namespace SEBS
         private string getLabel(string type, int address ,string prm=null)
         {
             if (address < 1024)
-                return $"$TARGET(0x{address:X})";
+                return $"${address:X}";
             if (labelDeduplicator.ContainsKey(address))
                 return labelDeduplicator[address];
             var inc = -1;
