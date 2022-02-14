@@ -20,7 +20,8 @@ namespace SEBS
     {
         public int CategoryIndex;
         public int RelocatableDataStart;
-        public int RelocatableDataEnd;           
+        public int RelocatableDataLength;
+        public int DummyAddress;
         public SEBSOpenInstruction[] OpenInstructions = new SEBSOpenInstruction[1];
         public SEBSJumptableData JumpTable;    
     }

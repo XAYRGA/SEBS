@@ -34,8 +34,29 @@ namespace SEBS
             BED.disassembleQueueItems();
 
             File.WriteAllText("test.txt", BED.output.ToString());
+            
+             */
+            /*
+            args = new string[]
+            {
+                "unpack",
+                "defaultse.bms",
+                "template_new.json",
+                "windwaker",
+                "-asnfile",
+                "jaiinfo.asn"
+            };
             */
-
+             args = new string[]
+            {
+                "unpack",
+                "se.scom",
+                "sunshine.json",
+                "sunshine",
+                "-asnfile",
+                "mSound.asn"
+            };
+            //*/
             cmdarg.cmdargs = args;
             var operation = cmdarg.assertArg(0, "Operation");          
 

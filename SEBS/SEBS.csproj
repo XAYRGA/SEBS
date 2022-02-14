@@ -60,9 +60,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SEBSBMSDisassembler.cs" />
     <Compile Include="SEBSInfoFile.cs" />
+    <Compile Include="SEBSProjectFile.cs" />
     <Compile Include="SEBSUnpacker.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="App.config" />
     <None Include="beio\license.bsd" />
     <None Include="packages.config" />
