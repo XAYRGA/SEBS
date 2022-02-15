@@ -28,7 +28,20 @@
       "JumpTable": {
         "InstructionOffset": 515,
         "InstructionInnerOffset": 103,
-        "SuggestedLength": 271
+        "SuggestedLength": 271,
+        "InnerPointerRelocations": [
+          39,
+          46,
+          82,
+          120,
+          125,
+          133,
+          140,
+          166,
+          174,
+          183,
+          192
+        ]
       }
     },
     {
@@ -57,9 +70,24 @@
       "JumpTable": {
         "InstructionOffset": 19603,
         "InstructionInnerOffset": 103,
-        "SuggestedLength": 167
-      }    
-    }, 
+        "SuggestedLength": 167,
+        "InnerPointerRelocations": [
+          39,
+          46,
+          82,
+          120,
+          125,
+          133,
+          140,
+          166,
+          174,
+          183,
+          192
+        ]
+
+
+      }
+    },
     {
       "CategoryIndex": 2,
       "RelocatableDataStart": 25067,
@@ -86,7 +114,20 @@
       "JumpTable": {
         "InstructionOffset": 25170,
         "InstructionInnerOffset": 103,
-        "SuggestedLength": 166
+        "SuggestedLength": 166,
+        "InnerPointerRelocations": [
+          39,
+          46,
+          82,
+          120,
+          125,
+          133,
+          140,
+          166,
+          174,
+          183,
+          192
+        ]
       }
     },
     {
@@ -115,7 +156,20 @@
       "JumpTable": {
         "InstructionOffset": 25170,
         "InstructionInnerOffset": 103,
-        "SuggestedLength": 65
+        "SuggestedLength": 65,
+        "InnerPointerRelocations": [
+          39,
+          46,
+          82,
+          120,
+          125,
+          133,
+          140,
+          166,
+          174,
+          183,
+          192
+        ]
       }
     },
     {
@@ -144,7 +198,20 @@
       "JumpTable": {
         "InstructionOffset": 25170,
         "InstructionInnerOffset": 103,
-        "SuggestedLength": 404
+        "SuggestedLength": 404,
+        "InnerPointerRelocations": [
+          39,
+          46,
+          82,
+          120,
+          125,
+          133,
+          140,
+          166,
+          174,
+          183,
+          192
+        ]
       }
     },
     {
@@ -173,7 +240,20 @@
       "JumpTable": {
         "InstructionOffset": 25170,
         "InstructionInnerOffset": 103,
-        "SuggestedLength": 419
+        "SuggestedLength": 419,
+        "InnerPointerRelocations": [
+          39,
+          46,
+          82,
+          120,
+          125,
+          133,
+          140,
+          166,
+          174,
+          183,
+          192
+        ]
       }
     },
     {
@@ -202,7 +282,20 @@
       "JumpTable": {
         "InstructionOffset": 25170,
         "InstructionInnerOffset": 103,
-        "SuggestedLength": 599
+        "SuggestedLength": 599,
+        "InnerPointerRelocations": [
+          39,
+          46,
+          82,
+          120,
+          125,
+          133,
+          140,
+          166,
+          174,
+          183,
+          192
+        ]
       }
     },
     {
@@ -231,7 +324,20 @@
       "JumpTable": {
         "InstructionOffset": 25170,
         "InstructionInnerOffset": 103,
-        "SuggestedLength": 111
+        "SuggestedLength": 111,
+        "InnerPointerRelocations": [
+          39,
+          46,
+          82,
+          120,
+          125,
+          133,
+          140,
+          166,
+          174,
+          183,
+          192
+        ]
       }
     }
   ]

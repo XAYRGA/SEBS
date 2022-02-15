@@ -62,6 +62,7 @@
     <Compile Include="SEBSBMSDisassembler.cs" />
     <Compile Include="SEBSInfoFile.cs" />
     <Compile Include="SEBSProjectFile.cs" />
+    <Compile Include="SEBSPacker.cs" />
     <Compile Include="SEBSUnpacker.cs" />
   </ItemGroup>
   <ItemGroup>

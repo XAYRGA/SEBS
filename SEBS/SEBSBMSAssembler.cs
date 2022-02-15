@@ -225,7 +225,6 @@ namespace SEBS
             for (int i=0; i < commands.Length; i++)
             {
                 var command = commands[i];
-                //Console.WriteLine($"{i} Reasm {command}");
                 assemble(command);
             }
             dereferenceLabels();

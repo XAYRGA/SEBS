@@ -38,7 +38,7 @@ namespace SEBS
 
 
              */
-
+            /*
             var inText = File.ReadAllLines("MSD_SE_EV_LITTLE_WAVE_L.txt");
             var outFile = File.OpenWrite("MSD_SE_EV_LITTLE_WAVE_L.bms");
             var outWriter = new BeBinaryWriter(outFile);
@@ -49,6 +49,7 @@ namespace SEBS
             outWriter.Flush();
             outWriter.Close();
             Console.ReadLine();
+            */
 
             ///*
             ///
@@ -74,6 +75,13 @@ namespace SEBS
                 "mSound.asn"
             };
             //*/
+
+            args = new string[]
+             {
+                    "pack",
+                    "windwaker",
+                    "ww_se.bms",
+             };
             cmdarg.cmdargs = args;
             var operation = cmdarg.assertArg(0, "Operation");          
 
@@ -122,7 +130,34 @@ namespace SEBS
                         unpacker.unpack(outputFolder);
                         Console.ReadLine();
                     }
-                    break;            
+                    break;
+                case "pack":
+                    {
+                        var ProjectFolder = cmdarg.assertArg(1, "Project Folder");
+                        var OutputFile = cmdarg.assertArg(2, "Output File");
+
+                        cmdarg.assert(!Directory.Exists(ProjectFolder), $"Project {ProjectFolder} doesn't exist or cannot be accessed. ");
+                        cmdarg.assert(!File.Exists($"{ProjectFolder}/sebs.json"), $"Project {ProjectFolder} doesn't contain a sebs.json file.");
+
+                        var stm = File.ReadAllText($"{ProjectFolder}/sebs.json");
+                        var outf = File.OpenWrite(OutputFile);
+                        SEBSProjectFile info = null;
+                        try
+                        {
+                            //var dat = File.ReadAllText(OutputFile);
+                            info = JsonConvert.DeserializeObject<SEBSProjectFile>(stm);
+
+                        }
+                        catch (Exception ex)
+                        {
+                            cmdarg.assert($"Failed loading Game Configuration {ex.ToString()}");
+                        }
+
+                        var packer = new SEBSPacker(outf, info, ProjectFolder);
+                        packer.pack();
+                        Console.ReadLine();
+                    }
+                    break;
                 default:
                 case "help":
                     help();
