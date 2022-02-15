@@ -14,7 +14,9 @@ namespace SEBS
     {
         SEBSProjectFile Project;
         BeBinaryWriter output;
-        string Folder; 
+        BeBinaryReader input;
+        string Folder;
+        long baseAddress = 0;
 
         public SEBSPacker(Stream SEBMS, SEBSProjectFile prj,string project_folder)
         {
@@ -23,7 +25,7 @@ namespace SEBS
             Folder = project_folder;
         }
 
-        public static int padTo(BeBinaryWriter bw, int padding)
+        public static int padTo(BeBinaryWriter bw, int padding=32)
         {
             int del = 0;
             while (bw.BaseStream.Position % padding != 0)
@@ -41,21 +43,32 @@ namespace SEBS
             return (padding - delta);
         }
 
-        private void patchPointer24(long addr, long value)
+        private void relocateSection()
         {
-
+            
         }
 
         public void pack()
         {
+      
             // Write init data 
             var bytes = File.ReadAllBytes($"{Folder}/{Project.InitDataPath}");
             output.Write(bytes);
             padTo(output, 32);
-            var ProjectBase = output.BaseStream.Position;
+            for (int i = 0; i < Project.Categories.Length; i++)
+                packCategory(Project.Categories[i]);
+
+
 
         }
 
+        private void packCategory(SEBSProjectCategory cat)
+        {
+            var catBase = output.BaseStream.Position; 
+
+        }
+
+       
    
 
     }
