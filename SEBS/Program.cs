@@ -35,7 +35,23 @@ namespace SEBS
 
             File.WriteAllText("test.txt", BED.output.ToString());
             
+
+
              */
+
+            var inText = File.ReadAllLines("MSD_SE_EV_LITTLE_WAVE_L.txt");
+            var outFile = File.OpenWrite("MSD_SE_EV_LITTLE_WAVE_L.bms");
+            var outWriter = new BeBinaryWriter(outFile);
+            var asm = new SEBSBMSAssembler("MSD_SE_EV_LITTLE_WAVE_L", outWriter, inText);
+            asm.fillCommands();
+            asm.assembleAll();
+
+            outWriter.Flush();
+            outWriter.Close();
+            Console.ReadLine();
+
+            ///*
+            ///
             /*
             args = new string[]
             {
@@ -46,7 +62,8 @@ namespace SEBS
                 "-asnfile",
                 "jaiinfo.asn"
             };
-            */
+            //*/
+            /*
              args = new string[]
             {
                 "unpack",

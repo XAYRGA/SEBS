@@ -14,7 +14,9 @@ namespace SEBS
     internal struct SEBSJumptableData
     {
         public int InstructionInnerOffset;
+        public int InterruptInstructionInnerOffset;
         public int SuggestedLength;
+        
     }
     internal class SEBSCategory
     {

@@ -99,13 +99,13 @@ namespace SEBS
             var noteOnType = (voiceflags >> 3) & 3;
 
             if (noteOnType == 0) // noteon
-                output.AppendLine($"NOTEON1 {note:X} {voiceflags} {velocity:X}");
+                output.AppendLine($"NOTEON1 h{note:X} h{voiceflags:X} h{velocity:X}");
             else if (noteOnType == 1) // noteonr
-                output.AppendLine($"NOTEON2 {note:X} {voiceflags} {velocity:X} {reader.ReadByte():X} {reader.ReadByte():X}");
+                output.AppendLine($"NOTEON2 h{note:X} h{voiceflags:X} h{velocity:X} h{reader.ReadByte():X} h{reader.ReadByte():X}");
             else if (noteOnType == 2) // noteonrd
-                output.AppendLine($"NOTEON3 {note:X} {voiceflags} {velocity:X} {reader.ReadByte():X} {reader.ReadByte():X} {reader.ReadByte():X}");
+                output.AppendLine($"NOTEON3 h{note:X} h{voiceflags:X} h{velocity:X} h{reader.ReadByte():X} h{reader.ReadByte():X} h{reader.ReadByte():X}");
             else if (noteOnType == 3)// Noteonrdl 
-                output.AppendLine($"NOTEON4 {note:X} {voiceflags} {velocity:X} {reader.ReadByte():X} {reader.ReadByte():X} {reader.ReadByte():X} {reader.ReadByte():X}");
+                output.AppendLine($"NOTEON4 h{note:X} h{voiceflags:X} h{velocity:X} h{reader.ReadByte():X} h{reader.ReadByte():X} h{reader.ReadByte():X} h{reader.ReadByte():X}");
         }
 
         public BMSEvent disassembleNext(int override_byte=-1)
@@ -155,10 +155,10 @@ namespace SEBS
                 switch (ev)
                 {
                     case BMSEvent.CMD_WAIT8:
-                        output.AppendLine($"WAIT8 {reader.ReadByte():X}");
+                        output.AppendLine($"WAIT8 h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.CMD_WAIT16:
-                        output.AppendLine($"WAIT16 {reader.ReadUInt16():X}");
+                        output.AppendLine($"WAIT16 h{reader.ReadUInt16():X}");
                         break;
                     case BMSEvent.PARAM_SET_16:
                         {
@@ -167,7 +167,7 @@ namespace SEBS
                             if (destinationRegister == 6) // overflow register for instrument and bank. >> 8 is bank, &8 is instrument.                             
                                 output.AppendLine($"SET_BANK_INST {reader.ReadByte()} {reader.ReadByte()}");
                             else
-                                output.AppendLine($"PARAM_SET_16 {destinationRegister:X} {reader.ReadInt16()}");
+                                output.AppendLine($"PARAM_SET_16 h{destinationRegister:X} {reader.ReadInt16()}");
                         }
                         break;
                     case BMSEvent.OPENTRACK:
@@ -175,7 +175,7 @@ namespace SEBS
                             var trackID = reader.ReadByte();
                             var address = (int)reader.ReadU24();
                             var label = getLabel("TRACK", address, $"OPEN");
-                            output.AppendLine($"OPENTRACK {trackID:X} {label}");
+                            output.AppendLine($"OPENTRACK h{trackID:X} {label}");
                             var outP = -1;
                             if (!tryBackseekLabel4Tracks((int)address, label))
                                 queueItems.Enqueue(new SEBSDissasemblerQueueItem()
@@ -207,7 +207,7 @@ namespace SEBS
                                     if (!labelDeduplicator.ContainsKey((int)address))
                                         Console.WriteLine($"{stackName} CANNOT FIND BACKLABEL REFERENCE!!!!"); // I should throw. 
                             }
-                            output.AppendLine($"JMP {flags:X} {label}");
+                            output.AppendLine($"JMP h{flags:X} {label}");
                             if (flags == 0 && AllowImplicitCallTermination)
                             {
                                 output.AppendLine("# JMP 0: IMPLICIT CALL TERMINATION");
@@ -230,7 +230,7 @@ namespace SEBS
                                     label = label,
                                     type = SEBSDisassemblerQueueItemType.JUMPTABLE
                                 });
-                                output.AppendLine($"CALLTABLE {flags:X} {label}");
+                                output.AppendLine($"CALLTABLE h{flags:X} {label}");
                             }
                             else
                             {
@@ -243,7 +243,7 @@ namespace SEBS
                                         label = label,
                                         type = SEBSDisassemblerQueueItemType.CALL
                                     });
-                                output.AppendLine($"CALL {flags:X} {label}");
+                                output.AppendLine($"CALL h{flags:X} {label}");
                             }
                         }
                         break;
@@ -259,7 +259,7 @@ namespace SEBS
                                     label = label,
                                     type = SEBSDisassemblerQueueItemType.ENVELOPE
                                 });
-                            output.AppendLine($"SIMPLEENV {flags:X} {label}");
+                            output.AppendLine($"SIMPLEENV h{flags:X} {label}");
                         }
                         break;
                     case BMSEvent.SETINTERRUPT:
@@ -274,7 +274,7 @@ namespace SEBS
                                     label = label,
                                     type = SEBSDisassemblerQueueItemType.CALL
                                 });
-                            output.AppendLine($"INTERRUPT {ilevel:X} {label}");
+                            output.AppendLine($"INTERRUPT h{ilevel:X} {label}");
                         }
                         break;
                     case BMSEvent.OPOVERRIDE_4:
@@ -301,19 +301,19 @@ namespace SEBS
                             output.AppendLine("PRINTF " + message);
                             output.Append("$WRITEARGS ");
                             for (int i=0; i<references; i++) 
-                                output.Append($"b{reader.ReadByte()}");
+                                output.Append($"b{reader.ReadByte():X}");
 
                             output.AppendLine();
                         }
                         break;
                     case BMSEvent.CLOSETRACK:
-                        output.AppendLine($"CLOSETRACK {reader.ReadByte():X}");
+                        output.AppendLine($"CLOSETRACK h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.SIMPLEOSC:
-                        output.AppendLine($"SIMPLEOSC {reader.ReadByte():X}");
+                        output.AppendLine($"SIMPLEOSC h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.TRANSPOSE:
-                        output.AppendLine($"TRANSPOSE {reader.ReadByte():X}");
+                        output.AppendLine($"TRANSPOSE h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.CLRI:
                         output.AppendLine("CEARINTERRUPT");
@@ -322,97 +322,97 @@ namespace SEBS
                         output.AppendLine("RETURNINTERRUPT");
                         break;
                     case BMSEvent.OSCROUTE:
-                        output.AppendLine($"OSCROUTE {reader.ReadByte()}");
+                        output.AppendLine($"OSCROUTE h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.VIBDEPTH:
-                        output.AppendLine($"VIBDEPTH {reader.ReadByte()}");
+                        output.AppendLine($"VIBDEPTH h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.VIBDEPTHMIDI:
-                        output.AppendLine($"VIBDEPTHMIDI {reader.ReadByte()} {reader.ReadByte()}");
+                        output.AppendLine($"VIBDEPTHMIDI h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.VIBPITCH:
-                        output.AppendLine($"VIBPITCH {reader.ReadByte()}");
+                        output.AppendLine($"VIBPITCH h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.FLUSHALL:
                         output.AppendLine($"FLUSHALL");
                         break;
                     case BMSEvent.IIRCUTOFF:
-                        output.AppendLine($"IIRCUTOFF {reader.ReadByte()}");
+                        output.AppendLine($"IIRCUTOFF h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.SIMPLEADSR:
-                        output.AppendLine($"SIMPLEADSR {reader.ReadUInt16():X} {reader.ReadUInt16():X} {reader.ReadUInt16():X} {reader.ReadUInt16():X} {reader.ReadUInt16():X}");
+                        output.AppendLine($"SIMPLEADSR {reader.ReadUInt16()} {reader.ReadUInt16()} {reader.ReadUInt16()} {reader.ReadUInt16()} {reader.ReadUInt16()}");
                         break;
                     case BMSEvent.READPORT:
-                        output.AppendLine($"READPORT {reader.ReadByte()}  {reader.ReadByte()}");
+                        output.AppendLine($"READPORT h{reader.ReadByte():X}  h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.WRITEPORT:
-                        output.AppendLine($"WRITEPORT {reader.ReadByte()}  {reader.ReadByte()}");
+                        output.AppendLine($"WRITEPORT h{reader.ReadByte():X}  h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.CHILDWRITEPORT:
-                        output.AppendLine($"CHILDWRITEPORT {reader.ReadByte()}  {reader.ReadByte()}");
+                        output.AppendLine($"CHILDWRITEPORT h{reader.ReadByte():X}  h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PERF_S8_DUR_U16:
-                        output.AppendLine($"PERF_S8_DUR_U16 {reader.ReadByte():X} {reader.ReadSByte()} {reader.ReadUInt16()} ");
+                        output.AppendLine($"PERF_S8_DUR_U16 h{reader.ReadByte():X} {reader.ReadSByte()} {reader.ReadUInt16()} ");
                         break;
                     case BMSEvent.PERF_S16_NODUR:
-                        output.AppendLine($"PERF_S16 {reader.ReadByte():X} {reader.ReadUInt16()} ");
+                        output.AppendLine($"PERF_S16 h{reader.ReadByte():X} {reader.ReadUInt16()} ");
                         break;
                     case BMSEvent.PERF_S16_DUR_U8_9E:
-                        output.AppendLine($"PERF_S16_U8_9E {reader.ReadByte():X} {reader.ReadInt16()} {reader.ReadByte():X}");
+                        output.AppendLine($"PERF_S16_U8_9E h{reader.ReadByte():X} {reader.ReadInt16()} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PERF_S16_DUR_U8:
-                        output.AppendLine($"PERF_S16_U8 {reader.ReadByte():X} {reader.ReadUInt16()} {reader.ReadByte():X}");
+                        output.AppendLine($"PERF_S16_U8 h{reader.ReadByte():X} {reader.ReadUInt16()} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PERF_S8_NODUR:
-                        output.AppendLine($"PERF_S8 {reader.ReadByte():X} {reader.ReadSByte()}");
+                        output.AppendLine($"PERF_S8 h{reader.ReadByte():X} {reader.ReadSByte()}");
                         break;
                     case BMSEvent.PARAM_SET_R:
-                        output.AppendLine($"PAR_SET_REG {reader.ReadByte():X} {reader.ReadByte():X}");
+                        output.AppendLine($"PAR_SET_REG h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PARAM_ADD_R:
-                        output.AppendLine($"PAR_ADD_REG {reader.ReadByte():X} {reader.ReadByte():X}");
+                        output.AppendLine($"PAR_ADD_REG h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PARAM_BITWISE:
                         {
                             var op = reader.ReadByte();
                             //Console.WriteLine($"{op:X}");
                             if ((op & 0x0F) == 0x0C)
-                                output.AppendLine($"PARAM_BITWISE_C {op:X} {reader.ReadByte():X} {reader.ReadSByte()}  {reader.ReadByte():X}");
+                                output.AppendLine($"PARAM_BITWISE_C h{op:X} h{reader.ReadByte():X} h{reader.ReadByte():X}  h{reader.ReadByte():X}");
                             else if ((op & 0x0F) == 0x08)
-                                output.AppendLine($"PARAM_BITWISE_8 {op:X} {reader.ReadByte():X} {reader.ReadByte():X}");
+                                output.AppendLine($"PARAM_BITWISE_8 h{op:X} h{reader.ReadByte():X} h{reader.ReadByte():X}");
                             else
-                                output.AppendLine($"PARAM_BITWISE {op:X} {reader.ReadByte():X} {reader.ReadByte():X}");
+                                output.AppendLine($"PARAM_BITWISE h{op:X} h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         }
                         break;
                     case BMSEvent.PERF_S8_DUR_U8:
-                        output.AppendLine($"PERF_S8_U8 {reader.ReadByte()} {reader.ReadSByte()} {reader.ReadByte()}");
+                        output.AppendLine($"PERF_S8_U8 h{reader.ReadByte():X} {reader.ReadSByte()} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PARAM_SET_8:
-                        output.AppendLine($"PAR_SET_8 {reader.ReadByte():X} {reader.ReadByte():X}");
+                        output.AppendLine($"PAR_SET_8 h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PARAM_ADD_8:
-                        output.AppendLine($"PAR_ADD_8 {reader.ReadByte():X} {reader.ReadByte():X}");
+                        output.AppendLine($"PAR_ADD_8 h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PARAM_ADD_16:
-                        output.AppendLine($"PAR_ADD_16 {reader.ReadByte():X} {reader.ReadInt16()}");
+                        output.AppendLine($"PAR_ADD_16 h{reader.ReadByte():X} h{reader.ReadInt16()}");
                         break;
                     case BMSEvent.PARAM_CMP_8:
-                        output.AppendLine($"PAR_CMP_8 {reader.ReadByte():X} {reader.ReadByte():X}");
+                        output.AppendLine($"PAR_CMP_8 h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PARAM_CMP_R:
-                        output.AppendLine($"PAR_CMP_R {reader.ReadByte():X} {reader.ReadByte():X}");
+                        output.AppendLine($"PAR_CMP_R h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.SETPARAM_90:
-                        output.AppendLine($"PAR_SET_90 {reader.ReadByte():X} {reader.ReadByte():X}");
+                        output.AppendLine($"PAR_SET_90 h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.SETLASTNOTE:
-                        output.AppendLine($"SETLN {reader.ReadByte():X}");
+                        output.AppendLine($"SETLN h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.CMD_WAITR:
-                        output.AppendLine($"WAITR {reader.ReadByte():X}");
+                        output.AppendLine($"WAITR h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.LOOP_S:
-                        output.AppendLine($"LOOPS {reader.ReadByte():X}");
+                        output.AppendLine($"LOOPS h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.LOOP_E:
                         output.AppendLine($"LOOPE");
@@ -427,7 +427,7 @@ namespace SEBS
                         output.AppendLine($"TBASE {reader.ReadUInt16()}");
                         break;
                     case BMSEvent.RETURN:
-                        output.AppendLine($"RETURN {reader.ReadByte()}");
+                        output.AppendLine($"RETURN h{reader.ReadByte():X}");
                         var peek = reader.ReadByte();
                         if (peek == 0xFF)
                             output.AppendLine("FINISH");
