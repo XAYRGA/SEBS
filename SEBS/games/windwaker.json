@@ -30,6 +30,7 @@
         "InstructionInnerOffset": 103,
         "SuggestedLength": 271,
         "InnerPointerRelocations": [
+          22,
           39,
           46,
           82,
@@ -72,6 +73,7 @@
         "InstructionInnerOffset": 103,
         "SuggestedLength": 167,
         "InnerPointerRelocations": [
+          22,
           39,
           46,
           82,
@@ -85,9 +87,9 @@
           192
         ]
 
-
-      }
-    },
+     
+      }    
+    }, 
     {
       "CategoryIndex": 2,
       "RelocatableDataStart": 25067,
@@ -116,6 +118,7 @@
         "InstructionInnerOffset": 103,
         "SuggestedLength": 166,
         "InnerPointerRelocations": [
+          22,
           39,
           46,
           82,
@@ -158,6 +161,7 @@
         "InstructionInnerOffset": 103,
         "SuggestedLength": 65,
         "InnerPointerRelocations": [
+          22,
           39,
           46,
           82,
@@ -200,6 +204,7 @@
         "InstructionInnerOffset": 103,
         "SuggestedLength": 404,
         "InnerPointerRelocations": [
+          22,
           39,
           46,
           82,
@@ -242,6 +247,7 @@
         "InstructionInnerOffset": 103,
         "SuggestedLength": 419,
         "InnerPointerRelocations": [
+          22,
           39,
           46,
           82,
@@ -284,6 +290,7 @@
         "InstructionInnerOffset": 103,
         "SuggestedLength": 599,
         "InnerPointerRelocations": [
+          22,
           39,
           46,
           82,
@@ -326,7 +333,8 @@
         "InstructionInnerOffset": 103,
         "SuggestedLength": 111,
         "InnerPointerRelocations": [
-          39,
+          22,
+          39,        
           46,
           82,
           120,
