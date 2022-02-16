@@ -48,6 +48,8 @@ namespace SEBS
         SEBSAssemblerCommand currentCommand;
 
         string[] lines;
+
+        public Dictionary<int, int> Externals;
         public SEBSBMSAssembler(string stackN, BeBinaryWriter op, string[] textData) {
             lines = textData;
             stackName = stackN;
@@ -228,6 +230,8 @@ namespace SEBS
                 assemble(command);
             }
             dereferenceLabels();
+            if (externalOpen)
+                compileError("Unclosed external.");
         }
 
         public void dereferenceLabels()
@@ -259,6 +263,9 @@ namespace SEBS
 
 
         bool waitingForAgs = false;
+        bool externalOpen = false;
+        bool externalBlocking = false;
+
         public void assemble(SEBSAssemblerCommand DisCommand)
         {
 
@@ -266,17 +273,55 @@ namespace SEBS
             var comText = DisCommand.command;
             var args = DisCommand.args;
 
-            if (comText[0] == ':')
-                labelStorage[comText.Substring(1)] = output.BaseStream.Position;
-            else {
+
+            if (comText == "$ENDEXTERNAL")
+            {
+                externalOpen = false;
+                externalBlocking = false;
+            }
+            else if (externalBlocking == true) { } // Do nothing, we dont want to write data we don't need. 
+            else if (comText[0] == ':')
+            {
+                if (args.Length >= 2)
+                {
+                    var labelCommand = args[0];
+                    if (labelCommand == "EXTERNAL")
+                    {
+                        var addr = parseNumber(args[1]);
+                        externalOpen = true;
+                        var extAddr = 0;
+                        if (Externals != null && Externals.TryGetValue(addr, out extAddr))
+                        {
+                            labelStorage[comText.Substring(1)] = extAddr; // the external already is defined so we should just reference it.
+                            externalBlocking = true; // we found the label
+                        } else 
+                        { 
+                            // The label didn't exist, so we should store it
+                            if (Externals!=null)
+                                Externals[addr] = (int)output.BaseStream.Position;
+                            labelStorage[comText.Substring(1)] = output.BaseStream.Position;
+                        }
+                    }
+                }
+                else
+                {
+                    labelStorage[comText.Substring(1)] = output.BaseStream.Position;
+                }
+            }
+            else
+            {
 
                 if (waitingForAgs & comText != "$WRITEARGS")
                     compileError("Expecting writeargs after previous command! BMS Data will be misaligned.");
 
                 switch (comText)
                 {
+                    case "$DEFEXTERNAL":
+
+                        break;
+
                     case "ALIGN4":
-                        padTo(output,4);                  
+                        padTo(output, 4);
 
                         break;
                     case "NOTEON1":
@@ -365,8 +410,8 @@ namespace SEBS
                             for (int i = 0; i < args.Length; i++)
                                 output.Write(Encoding.ASCII.GetBytes(args[i]));
                             output.Write((byte)0x00); // null terminator
-                            // If $WRITEARGS doesn't follow after this. You're fucked :) 
-                            waitingForAgs = true; 
+                                                      // If $WRITEARGS doesn't follow after this. You're fucked :) 
+                            waitingForAgs = true;
                         }
                         break;
                     case "$WRITEARGS":

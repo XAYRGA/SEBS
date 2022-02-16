@@ -64,7 +64,7 @@ namespace SEBS
                 "jaiinfo.asn"
             };
             //*/
-            /*
+            //*
              args = new string[]
             {
                 "unpack",
@@ -75,12 +75,12 @@ namespace SEBS
                 "mSound.asn"
             };
             //*/
-            //*
+            /*
             args = new string[]
              {
                     "pack",
-                    "windwaker",
-                    "ww_se.bms",
+                    "sunshine",
+                    "ss_se.bms",
              };
             //*/
             cmdarg.cmdargs = args;

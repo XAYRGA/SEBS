@@ -112,8 +112,11 @@ namespace SEBS
                                 break;
                             }
                             var odlAddr = input.ReadU24();
-                            if (odlAddr < original)
-                                throw new Exception("BIG OOPS");
+                            if (odlAddr < 1024)        // don't relocate it, it's part of the init section.                    
+                                break;                            
+
+                            if (odlAddr < original)  // > 1024, are we making a call to init section?
+                                throw new Exception($"BIG OOPS 0x{input.BaseStream.Position:X}");
                             output.BaseStream.Position -= 3;
                             output.WriteU24((int)((odlAddr - original) + newbase));
                             break;
