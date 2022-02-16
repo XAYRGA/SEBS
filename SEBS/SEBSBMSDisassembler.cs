@@ -343,13 +343,13 @@ namespace SEBS
                         output.AppendLine($"SIMPLEADSR {reader.ReadUInt16()} {reader.ReadUInt16()} {reader.ReadUInt16()} {reader.ReadUInt16()} {reader.ReadUInt16()}");
                         break;
                     case BMSEvent.READPORT:
-                        output.AppendLine($"READPORT h{reader.ReadByte():X}  h{reader.ReadByte():X}");
+                        output.AppendLine($"READPORT h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.WRITEPORT:
-                        output.AppendLine($"WRITEPORT h{reader.ReadByte():X}  h{reader.ReadByte():X}");
+                        output.AppendLine($"WRITEPORT h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.CHILDWRITEPORT:
-                        output.AppendLine($"CHILDWRITEPORT h{reader.ReadByte():X}  h{reader.ReadByte():X}");
+                        output.AppendLine($"CHILDWRITEPORT h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PERF_S8_DUR_U16:
                         output.AppendLine($"PERF_S8_DUR_U16 h{reader.ReadByte():X} {reader.ReadSByte()} {reader.ReadUInt16()} ");
@@ -358,10 +358,10 @@ namespace SEBS
                         output.AppendLine($"PERF_S16 h{reader.ReadByte():X} {reader.ReadUInt16()} ");
                         break;
                     case BMSEvent.PERF_S16_DUR_U8_9E:
-                        output.AppendLine($"PERF_S16_U8_9E h{reader.ReadByte():X} {reader.ReadInt16()} h{reader.ReadByte():X}");
+                        output.AppendLine($"PERF_S16_U8_9E h{reader.ReadByte():X} {reader.ReadInt16()} {reader.ReadByte():X}");
                         break;
                     case BMSEvent.PERF_S16_DUR_U8:
-                        output.AppendLine($"PERF_S16_U8 h{reader.ReadByte():X} {reader.ReadUInt16()} h{reader.ReadByte():X}");
+                        output.AppendLine($"PERF_S16_U8 h{reader.ReadByte():X} {reader.ReadUInt16()} {reader.ReadByte():X}");
                         break;
                     case BMSEvent.PERF_S8_NODUR:
                         output.AppendLine($"PERF_S8 h{reader.ReadByte():X} {reader.ReadSByte()}");
@@ -377,7 +377,7 @@ namespace SEBS
                             var op = reader.ReadByte();
                             //Console.WriteLine($"{op:X}");
                             if ((op & 0x0F) == 0x0C)
-                                output.AppendLine($"PARAM_BITWISE_C h{op:X} h{reader.ReadByte():X} h{reader.ReadByte():X}  h{reader.ReadByte():X}");
+                                output.AppendLine($"PARAM_BITWISE_C h{op:X} h{reader.ReadByte():X} h{reader.ReadByte():X} h{reader.ReadByte():X}");
                             else if ((op & 0x0F) == 0x08)
                                 output.AppendLine($"PARAM_BITWISE_8 h{op:X} h{reader.ReadByte():X} h{reader.ReadByte():X}");
                             else
@@ -394,7 +394,7 @@ namespace SEBS
                         output.AppendLine($"PAR_ADD_8 h{reader.ReadByte():X} h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.PARAM_ADD_16:
-                        output.AppendLine($"PAR_ADD_16 h{reader.ReadByte():X} h{reader.ReadInt16()}");
+                        output.AppendLine($"PAR_ADD_16 h{reader.ReadByte():X} {reader.ReadInt16()}");
                         break;
                     case BMSEvent.PARAM_CMP_8:
                         output.AppendLine($"PAR_CMP_8 h{reader.ReadByte():X} h{reader.ReadByte():X}");
@@ -625,6 +625,7 @@ namespace SEBS
                         break;
                     case SEBSDisassemblerQueueItemType.JUMPTABLE:
                         {
+                            output.AppendLine("ALIGN4");
                             generateBanner();
                             var addrs = readJumptable();
                             for (int i=0; i< addrs.Length; i++)

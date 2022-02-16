@@ -36,13 +36,13 @@ namespace SEBS
 
         long baseAddress = 0;
 
-        public int DummyAddress = 0; 
+        public int DummyAddress = 0;
 
         BeBinaryWriter output;
 
         Dictionary<string, long> labelStorage = new Dictionary<string, long>();
         Queue<SEBSAssemblerLabelRef> labelReferences = new Queue<SEBSAssemblerLabelRef>();
-      
+
         SEBSAssemblerCommand[] commands;
 
         SEBSAssemblerCommand currentCommand;
@@ -51,12 +51,12 @@ namespace SEBS
         public SEBSBMSAssembler(string stackN, BeBinaryWriter op, string[] textData) {
             lines = textData;
             stackName = stackN;
-            output = op;        
+            output = op;
         }
-
+   
         private int parseNumber(string num)
         {
-            var ns = System.Globalization.NumberStyles.Integer;
+            var ns = System.Globalization.NumberStyles.Any;
             if (num.Length >= 2 && num[0] == '0' && num[1] == 'x')
             {
                 ns = System.Globalization.NumberStyles.HexNumber;
@@ -206,8 +206,8 @@ namespace SEBS
                     args = args,
                     command = command
                 };
-                Console.WriteLine(preObj);
-                Console.WriteLine($"{cnt} preload {preObj} {preObj.command}");
+               // Console.WriteLine(preObj);
+               // Console.WriteLine($"{cnt} preload {preObj} {preObj.command}");
                 commandBuilder.Enqueue(preObj);
                 cnt++;
             }
@@ -245,6 +245,19 @@ namespace SEBS
             }
         }
 
+        public static int padTo(BeBinaryWriter bw, int padding = 32)
+        {
+            int del = 0;
+            while (bw.BaseStream.Position % padding != 0)
+            {
+                bw.BaseStream.WriteByte(0xFC);
+                bw.BaseStream.Flush();
+                del++;
+            }
+            return del;
+        }
+
+
         bool waitingForAgs = false;
         public void assemble(SEBSAssemblerCommand DisCommand)
         {
@@ -262,7 +275,10 @@ namespace SEBS
 
                 switch (comText)
                 {
+                    case "ALIGN4":
+                        padTo(output,4);                  
 
+                        break;
                     case "NOTEON1":
                         output.Write((byte)parseNumber(args[0]));
                         output.Write((byte)parseNumber(args[1]));
@@ -361,10 +377,10 @@ namespace SEBS
                         }
                         break;
                     case "REF":
-                        if (args[1] == "$DUMMY")
+                        if (args[0] == "$DUMMY")
                             output.WriteU24(DummyAddress);
                         else
-                            storeLabelRef(args[1], SEBAssemblerLabelType.INT24);
+                            storeLabelRef(args[0], SEBAssemblerLabelType.INT24);
                         break;
                     case "ENV":
                         output.Write((short)parseNumber(args[1]));
@@ -447,7 +463,7 @@ namespace SEBS
                         output.Write((byte)parseNumber(args[0]));
                         output.Write((short)parseNumber(args[1]));
                         break;
-                    case "PERF_S16_DUR_U8_9E":
+                    case "PERF_S16_U8_9E":
                         writeBMSEvent(BMSEvent.PERF_S16_DUR_U8_9E);
                         output.Write((byte)parseNumber(args[0]));
                         output.Write((short)parseNumber(args[1]));

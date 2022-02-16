@@ -53,12 +53,12 @@ namespace SEBS
 
             ///*
             ///
-            /*
+           /*
             args = new string[]
             {
                 "unpack",
                 "defaultse.bms",
-                "template_new.json",
+                "windwaker.json",
                 "windwaker",
                 "-asnfile",
                 "jaiinfo.asn"
@@ -75,13 +75,14 @@ namespace SEBS
                 "mSound.asn"
             };
             //*/
-
+            //*
             args = new string[]
              {
                     "pack",
                     "windwaker",
                     "ww_se.bms",
              };
+            //*/
             cmdarg.cmdargs = args;
             var operation = cmdarg.assertArg(0, "Operation");          
 
@@ -140,7 +141,7 @@ namespace SEBS
                         cmdarg.assert(!File.Exists($"{ProjectFolder}/sebs.json"), $"Project {ProjectFolder} doesn't contain a sebs.json file.");
 
                         var stm = File.ReadAllText($"{ProjectFolder}/sebs.json");
-                        var outf = File.OpenWrite(OutputFile);
+                        var outf = File.Open(OutputFile,FileMode.OpenOrCreate,FileAccess.ReadWrite);
                         SEBSProjectFile info = null;
                         try
                         {
