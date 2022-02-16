@@ -189,41 +189,25 @@ namespace SEBS
                         {
                             var flags = reader.ReadByte();
                             var address = reader.ReadU24();
-                            string label = "";
-                            if (!labelDeduplicator.ContainsKey((int)address))
-                            {
-                                label = getLabel("JUMP", (int)address);
-                                if (address > reader.BaseStream.Position)
+                            var label = getLabel("JUMP", (int)address); // should already deduplicate. 
+
+
+                            if (!tryBackseekLabel((int)address, label))
+                            { // tries to see if we've already covered the address, and inserts the label there if we have. 
+                               // warn($"backwards label reference for {label} failed. I'll try to resolve automatically..."); // I should throw. 
+                                refLabels[address] = new SEBSDisasssemblerLabel()
                                 {
-                                    if (!refLabels.ContainsKey(address))
-                                        refLabels[address] = new SEBSDisasssemblerLabel()
-                                        {
-                                            label = label,
-                                            referenced = false
-                                        };
-                                }
-                                else
-                                {
-                                    if (!tryBackseekLabel((int)address, label))
-                                    { // tries to see if we've already covered the address, and inserts the label there if we have. 
-                                        crit($"backwards label reference for {label} failed. This can be really bad. I'll try to resolve automatically..."); // I should throw. 
-                                        refLabels[address] = new SEBSDisasssemblerLabel()
-                                        {
-                                            label = label,
-                                            referenced = false
-                                        };
-                                    }
-                                }
-                            } else
-                            {
-                                label = labelDeduplicator[(int)address];
+                                    label = label,
+                                    referenced = false
+                                };
                             }
-                                output.AppendLine($"JMP h{flags:X} {label}");
-                                if (flags == 0 && AllowImplicitCallTermination)
-                                {
-                                    output.AppendLine("# JMP 0: IMPLICIT CALL TERMINATION");
-                                    return BMSEvent.REQUEST_STOP;
-                                }
+                            
+                            output.AppendLine($"JMP h{flags:X} {label}");
+                            if (flags == 0 && AllowImplicitCallTermination)
+                            {
+                                output.AppendLine("# JMP 0: IMPLICIT CALL TERMINATION");
+                                return BMSEvent.REQUEST_STOP;
+                            }
                             
                         }
                         break;
@@ -248,13 +232,15 @@ namespace SEBS
                             else
                             {
                                 var address = reader.ReadU24();
+
                                 var label = getLabel("CALL", (int)address); // already does dedupe. 
-                                    if (!tryBackseekLabel((int) address, label))
-                                        queueItems.Enqueue(new SEBSDissasemblerQueueItem()                                        {
-                                            address = (int)address,
-                                            label = label,
-                                            type = SEBSDisassemblerQueueItemType.CALL
-                                        });
+                                    if (label[0]!='$')
+                                        if (!tryBackseekLabel((int) address, label))
+                                            queueItems.Enqueue(new SEBSDissasemblerQueueItem() {
+                                                address = (int)address,
+                                                label = label,
+                                                type = SEBSDisassemblerQueueItemType.CALL
+                                            });
                         
                                 output.AppendLine($"CALL h{flags:X} {label}");
                             }
@@ -295,7 +281,7 @@ namespace SEBS
                         
                             var instruction = reader.ReadByte();
                             var mask = reader.ReadByte();
-                            output.Append($"OVERRIDE4 {instruction:X} {mask:X} ");
+                            output.Append($"OVERRIDE4 h{instruction:X} h{mask:X} ");
                             var @event = disassembleNext(instruction);
                             output.AppendLine($"$WRITEARGS b{reader.ReadByte():X} b{reader.ReadByte():X} b{reader.ReadByte():X} b{reader.ReadByte():X}");
                         }
@@ -329,7 +315,7 @@ namespace SEBS
                         output.AppendLine($"TRANSPOSE h{reader.ReadByte():X}");
                         break;
                     case BMSEvent.CLRI:
-                        output.AppendLine("CEARINTERRUPT");
+                        output.AppendLine("CLEARINTERRUPT");
                         break;
                     case BMSEvent.RETI:
                         output.AppendLine("RETURNINTERRUPT");
@@ -556,26 +542,29 @@ namespace SEBS
         }
         public void fixBrokenLabels()
         {
-            var broken = false;
-            foreach (KeyValuePair<long, SEBSDisasssemblerLabel> bk in refLabels)
-            {
-                broken = true;
-                if (bk.Value.referenced == false)
+            var broken = true;
+            while (broken == true) {
+                broken = false;
+                foreach (KeyValuePair<long, SEBSDisasssemblerLabel> bk in refLabels)
                 {
-                    warn($"Label {bk.Value.label} without reference!");
-                    queueItems.Enqueue(new SEBSDissasemblerQueueItem()
+             
+                    if (bk.Value.referenced == false)
                     {
-                        address = (int)bk.Key,
-                        label = bk.Value.label,
-                        type = SEBSDisassemblerQueueItemType.EXTERNAL
-                    });
+                        broken = true;
+                        warn($"Label {bk.Value.label} without reference!");
+                        queueItems.Enqueue(new SEBSDissasemblerQueueItem()
+                        {
+                            address = (int)bk.Key,
+                            label = bk.Value.label,
+                            type = SEBSDisassemblerQueueItemType.EXTERNAL
+                        });
+                    }
                 }
+                if (broken == true)
+                    disassembleQueueItems(true);
+                else
+                    return;
             }
-            if (broken == true)
-                disassembleQueueItems(true);
-            else
-                return;
-
 
         }
         public void disassembleQueueItems(bool fixingRefs = false)

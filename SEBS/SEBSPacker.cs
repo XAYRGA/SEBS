@@ -18,6 +18,7 @@ namespace SEBS
         string Folder;
         long baseAddress = 0;
         int dummyAddress = 0;
+        Dictionary<int, int> Externals = new Dictionary<int, int>();
 
         public SEBSPacker(Stream SEBMS, SEBSProjectFile prj, string project_folder)
         {
@@ -80,6 +81,7 @@ namespace SEBS
                     case 0xEF:
                     case 0xAC:
                     case 0xAD:
+                    case 0xAF:
                         output.BaseStream.Position += 3;
                         break;
 
@@ -119,6 +121,31 @@ namespace SEBS
                                 throw new Exception($"BIG OOPS 0x{input.BaseStream.Position:X}");
                             output.BaseStream.Position -= 3;
                             output.WriteU24((int)((odlAddr - original) + newbase));
+                            break;
+                        }
+                    case 0xA9:
+                        {
+                            var op = input.ReadByte();
+                            if ((op & 0x0F) == 0x0C)
+                                input.ReadBytes(3);
+                            else
+                                input.ReadBytes(2);
+                            break;
+                        }
+                    case 0xFB:
+                        {
+                    
+                            var references = 0;
+                            char last;
+                            while ((last = (char)input.ReadByte()) != 0x00)
+                            {
+                                if (last == '%')
+                                    references++;
+                            }
+
+                            for (int x = 0; x < references; x++)
+                                input.ReadByte();
+
                             break;
                         }
                     case 0x00: // ignore padding.
@@ -186,6 +213,7 @@ namespace SEBS
             for (int i = 0; i < cat.includes.Length; i++)
             {
 
+                //Console.WriteLine($"{i}/{cat.includes.Length}");
                 var file = cat.includes[i];
 
                 if (file=="(dummy).txt")
@@ -194,6 +222,7 @@ namespace SEBS
                     output.BaseStream.Position = pointerTableStart + (3 * i);
                     output.WriteU24((int)dummyAddress);
                     output.BaseStream.Position = oldAddress;
+                    Console.WriteLine("dummy...");
                     continue;
                 }
                 var soundAddress = output.BaseStream.Position;
@@ -207,6 +236,7 @@ namespace SEBS
          
                 var lines = File.ReadAllLines($"{Folder}/{cat.CategoryPath}/{file}");
                 var assembler = new SEBSBMSAssembler(file, output, lines);
+                assembler.Externals = Externals;
                 assembler.fillCommands();
                 assembler.DummyAddress = dummyAddress;
                 //try

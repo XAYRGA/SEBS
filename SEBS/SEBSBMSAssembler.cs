@@ -208,8 +208,7 @@ namespace SEBS
                     args = args,
                     command = command
                 };
-               // Console.WriteLine(preObj);
-               // Console.WriteLine($"{cnt} preload {preObj} {preObj.command}");
+
                 commandBuilder.Enqueue(preObj);
                 cnt++;
             }
@@ -316,9 +315,6 @@ namespace SEBS
 
                 switch (comText)
                 {
-                    case "$DEFEXTERNAL":
-
-                        break;
 
                     case "ALIGN4":
                         padTo(output, 4);
@@ -399,6 +395,7 @@ namespace SEBS
                         output.Write((byte)parseNumber(args[0]));
                         storeLabelRef(args[1], SEBAssemblerLabelType.INT24);
                         break;
+     
                     case "INTERRUPT":
                         writeBMSEvent(BMSEvent.SIMPLEENV);
                         output.Write((byte)parseNumber(args[0]));
@@ -408,7 +405,11 @@ namespace SEBS
                         {
                             writeBMSEvent(BMSEvent.PRINTF);
                             for (int i = 0; i < args.Length; i++)
+                            {
                                 output.Write(Encoding.ASCII.GetBytes(args[i]));
+                                if (i != args.Length)
+                                    output.Write(0x20);
+                            }
                             output.Write((byte)0x00); // null terminator
                                                       // If $WRITEARGS doesn't follow after this. You're fucked :) 
                             waitingForAgs = true;
@@ -427,6 +428,23 @@ namespace SEBS
                         else
                             storeLabelRef(args[0], SEBAssemblerLabelType.INT24);
                         break;
+                    case "OVERRIDE4":
+                        {
+                            var instr = parseNumber(args[0]);
+                            var mask = parseNumber(args[1]);
+                            var cock = args[2];
+                            writeBMSEvent(BMSEvent.OPOVERRIDE_4);                           
+                            if (instr == 0xD8)
+                            {
+                                output.Write((short)parseNumber(args[3]));
+                                output.Write((short)parseNumber(args[4]));
+                                output.Write((short)parseNumber(args[5]));
+                                output.Write((short)parseNumber(args[6]));
+                                output.Write((short)parseNumber(args[7]));
+                            }
+                            waitingForAgs = true;
+                            break;
+                        }
                     case "ENV":
                         output.Write((short)parseNumber(args[1]));
                         break;
@@ -444,6 +462,7 @@ namespace SEBS
                         writeBMSEvent(BMSEvent.TRANSPOSE);
                         output.Write((byte)parseNumber(args[0]));
                         break;
+                    case "CEARINTERRUPT":
                     case "CLEARINTERRUPT":
                         writeBMSEvent(BMSEvent.CLRI);
                         break;

@@ -64,7 +64,7 @@ namespace SEBS
                 "jaiinfo.asn"
             };
             //*/
-            //*
+            /*
              args = new string[]
             {
                 "unpack",
@@ -75,7 +75,7 @@ namespace SEBS
                 "mSound.asn"
             };
             //*/
-            /*
+            //*
             args = new string[]
              {
                     "pack",
