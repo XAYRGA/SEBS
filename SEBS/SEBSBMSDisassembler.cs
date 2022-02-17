@@ -89,6 +89,10 @@ namespace SEBS
             return lab;
         }
 
+        public void AddPlateComment(string comment)
+        {
+            output.AppendLine($"#{comment}");
+        }
 
         public void parseNoteOnEvent(byte note)
         {

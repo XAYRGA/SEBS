@@ -10,6 +10,13 @@ using Newtonsoft.Json;
 
 namespace SEBS
 {
+
+    class SEBSPackerQueueItem
+    {
+        public string reference;
+        public int writeAddress;
+        public string originalName;
+    }
     internal class SEBSPacker
     {
         SEBSProjectFile Project;
@@ -18,7 +25,14 @@ namespace SEBS
         string Folder;
         long baseAddress = 0;
         int dummyAddress = 0;
+
         Dictionary<int, int> Externals = new Dictionary<int, int>();
+
+        Dictionary<string, int> References = new Dictionary<string, int>();  
+
+        Queue<SEBSPackerQueueItem> RefFill = new Queue<SEBSPackerQueueItem>();
+       
+      
 
         public SEBSPacker(Stream SEBMS, SEBSProjectFile prj, string project_folder)
         {
@@ -157,6 +171,8 @@ namespace SEBS
             }
         }
 
+
+
         public void pack()
         {
             // Write init data 
@@ -174,6 +190,18 @@ namespace SEBS
 
             for (int i = 0; i < Project.Categories.Length; i++)
                 packCategory(Project.Categories[i], Project.RebuildData.Categories[i]);
+
+
+            while (RefFill.Count > 0)
+            {
+
+                var qi = RefFill.Dequeue();
+                Console.WriteLine($"Dereferencing {qi.originalName} - > {qi.reference}");
+                output.BaseStream.Position = qi.writeAddress;
+                output.WriteU24(References[qi.reference]);
+                References[qi.originalName] = References[qi.reference];
+            
+            }
 
 
             padTo(output, 32); // Entire file needs to align to 32 i guess.
@@ -218,26 +246,41 @@ namespace SEBS
 
                 if (file=="(dummy).txt")
                 {
-                    var oldAddress = output.BaseStream.Position; ;
+                    var oldAddress = output.BaseStream.Position; 
                     output.BaseStream.Position = pointerTableStart + (3 * i);
                     output.WriteU24((int)dummyAddress);
                     output.BaseStream.Position = oldAddress;
                     Console.WriteLine("dummy...");
                     continue;
                 }
+                var soundName = Path.GetFileNameWithoutExtension(file);
                 var soundAddress = output.BaseStream.Position;
+
+                var lines = File.ReadAllLines($"{Folder}/{cat.CategoryPath}/{file}");
+                var assembler = new SEBSBMSAssembler(file, output, lines);
+                assembler.fillCommands();
+                var refFile = assembler.checkGetReference();
+                if (refFile!=null)
+                {
+                    RefFill.Enqueue(new SEBSPackerQueueItem()
+                    {
+                        reference = refFile,
+                        writeAddress = (int)(pointerTableStart + (3 * i)),
+                        originalName = soundName
+                    });
+                    continue;
+                }
+
+                References[soundName] = (int)soundAddress;
 
                 output.BaseStream.Position = pointerTableStart + (3 * i);
                 output.WriteU24((int)soundAddress);
                 output.BaseStream.Position = soundAddress;
 
-
-
          
-                var lines = File.ReadAllLines($"{Folder}/{cat.CategoryPath}/{file}");
-                var assembler = new SEBSBMSAssembler(file, output, lines);
+          
                 assembler.Externals = Externals;
-                assembler.fillCommands();
+              
                 assembler.DummyAddress = dummyAddress;
                 //try
                 //{
@@ -252,7 +295,6 @@ namespace SEBS
 
                 //assembler.dereferenceLabels();
                 output.BaseStream.Position = output.BaseStream.Length;
-            
 
             }
 

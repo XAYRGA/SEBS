@@ -79,8 +79,8 @@ namespace SEBS
             args = new string[]
              {
                     "pack",
-                    "sunshine",
-                    "ss_se.bms",
+                    "windwaker",
+                    "windwaker.bms",
              };
             //*/
             cmdarg.cmdargs = args;

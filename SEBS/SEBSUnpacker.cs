@@ -16,6 +16,8 @@ namespace SEBS
         JASNTable SoundTable;
         BeBinaryReader Reader;
 
+        Dictionary<long, string> Deduplicator = new Dictionary<long, string>();
+
         public SEBSUnpacker(Stream SEBMS, SEBSInfoFile prj, JASNTable Stbl)
         {
             InfoFile = prj;
@@ -23,6 +25,7 @@ namespace SEBS
             Reader = new BeBinaryReader(SEBMS);
         }
 
+         int globalIncrmeneter = 0; // When you don't have an ASN you'll need unique names. 
 
         public void unpack(string to_folder)
         {
@@ -30,6 +33,7 @@ namespace SEBS
                 Directory.CreateDirectory(to_folder);
             var pad_data = Reader.ReadBytes(InfoFile.InitalizationSectionBytes);
             File.WriteAllBytes($"{to_folder}/init.dat", pad_data);
+            File.WriteAllText($"{to_folder}/dummy.txt", "###\r\nRETURN 0\r\n");
 
 
             var Proj = new SEBSProjectFile();
@@ -85,16 +89,31 @@ namespace SEBS
 
             var DisableImplicit = cmdarg.findDynamicFlagArgument("noimplicitjumpstop");
             for (int i = 0; i < cat.JumpTable.SuggestedLength; i++) {
-                var soundName = i.ToString();
+                var soundName = $"{cat.CategoryIndex}_{i}" ;
                 if (aSECategory != null)
                     soundName = aSECategory.waves[i].name;
 
-        
+                SECat.includes[i] = $"{soundName}.txt";
                 var Address = Reader.ReadU24();
+                var SoundID = $"{ (((cat.CategoryIndex & 0xF) << 12) | 0x800) + i }";
+                if (Deduplicator.ContainsKey(Address))
+                {
+                    var str = "";
+                    str+= "##################################################\r\n";
+                    str+= $"#STACK: {soundName}\r\n";
+                    str+= $"##################################################\r\n\r\n$REFERENCE {Deduplicator[Address]}\r\n";
+                    str += $"#Sound ID: 0x{SoundID:X}";
+                    File.WriteAllText($"{to_folder}/{soundName}.txt", str);
+                    continue;
+                }
+                Deduplicator[Address] = soundName;
+                
+                
                 //Console.WriteLine($"\t{Address:X}");
                 var anchor = Reader.BaseStream.Position;
                 var BED = new SEBSBMSDisassembler(Reader, soundName, (int)Address, cat.DummyAddress);
                 BED.AllowImplicitCallTermination = !DisableImplicit;
+                BED.AddPlateComment($"Sound ID: 0x{SoundID}");
                 BMSEvent bb;
                 while ((bb = BED.disassembleNext()) != BMSEvent.FINISH)
                     if (bb == BMSEvent.RETURN || bb == BMSEvent.REQUEST_STOP)
@@ -103,7 +122,7 @@ namespace SEBS
                 BED.fixBrokenLabels();
                 Reader.BaseStream.Position = anchor;
                 File.WriteAllText($"{to_folder}/{soundName}.txt", BED.output.ToString());
-                SECat.includes[i] = $"{soundName}.txt";
+        
             }
             return SECat;
         }

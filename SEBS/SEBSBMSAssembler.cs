@@ -220,6 +220,17 @@ namespace SEBS
 
         int commandID = 0;
 
+        public string checkGetReference()
+        {
+            for (int i = 0; i < commands.Length; i++)
+            {
+                var command = commands[i];
+                if (command.command == "$REFERENCE")
+                    return command.args[0];
+            }
+            return null;
+        }
+
         public void assembleAll()
         {
          
