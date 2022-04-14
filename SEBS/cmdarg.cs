@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SEBS
+namespace xayrga
 {
     public static class cmdarg
     {

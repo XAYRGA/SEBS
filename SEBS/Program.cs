@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Be.IO;
 using System.IO;
 using xayrga.asn;
+using xayrga;
+
 using Newtonsoft.Json;
 
 namespace SEBS
@@ -53,17 +55,17 @@ namespace SEBS
 
             ///*
             ///
-           /*
-            args = new string[]
-            {
-                "unpack",
-                "defaultse.bms",
-                "windwaker.json",
-                "windwaker",
-                "-asnfile",
-                "jaiinfo.asn"
-            };
-            //*/
+            //*
+             args = new string[]
+             {
+                 "unpack",
+                 "defaultse.bms",
+                 "games/windwaker.json",
+                 "windwaker",
+                 "-asnfile",
+                 "jaiinfo.asn"
+             };
+             //*/
             /*
              args = new string[]
             {
@@ -75,14 +77,24 @@ namespace SEBS
                 "mSound.asn"
             };
             //*/
-            //*
+            /*
             args = new string[]
              {
                     "pack",
-                    "windwaker",
-                    "windwaker.bms",
+                    "sunshine",
+                    "sunshinese2.bms",
              };
             //*/
+
+            /*
+          args = new string[]
+           {
+                  "pack",
+                  "windwaker",
+                  "defaultse_ww.bms",
+           };
+      //*/
+
             cmdarg.cmdargs = args;
             var operation = cmdarg.assertArg(0, "Operation");          
 
@@ -141,6 +153,8 @@ namespace SEBS
                         cmdarg.assert(!File.Exists($"{ProjectFolder}/sebs.json"), $"Project {ProjectFolder} doesn't contain a sebs.json file.");
 
                         var stm = File.ReadAllText($"{ProjectFolder}/sebs.json");
+                        if (File.Exists(OutputFile)) 
+                            File.Delete(OutputFile);
                         var outf = File.Open(OutputFile,FileMode.OpenOrCreate,FileAccess.ReadWrite);
                         SEBSProjectFile info = null;
                         try

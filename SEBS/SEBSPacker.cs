@@ -31,8 +31,8 @@ namespace SEBS
         Dictionary<string, int> References = new Dictionary<string, int>();  
 
         Queue<SEBSPackerQueueItem> RefFill = new Queue<SEBSPackerQueueItem>();
-       
-      
+
+        Dictionary<int, long> CatRefs = new Dictionary<int, long>();
 
         public SEBSPacker(Stream SEBMS, SEBSProjectFile prj, string project_folder)
         {
@@ -188,8 +188,8 @@ namespace SEBS
             assembler.assembleAll();
          
 
-            for (int i = 0; i < Project.Categories.Length; i++)
-                packCategory(Project.Categories[i], Project.RebuildData.Categories[i]);
+            for (int i = 0; i < Project.Categories.Length; i++) 
+                packCategory(Project.Categories[i], Project.RebuildData.Categories[i], i);
 
 
             while (RefFill.Count > 0)
@@ -198,8 +198,14 @@ namespace SEBS
                 var qi = RefFill.Dequeue();
                 Console.WriteLine($"Dereferencing {qi.originalName} - > {qi.reference}");
                 output.BaseStream.Position = qi.writeAddress;
-                output.WriteU24(References[qi.reference]);
-                References[qi.originalName] = References[qi.reference];
+                if (qi.reference == "(dummy)")
+                {
+                    output.WriteU24(dummyAddress);
+                    References[qi.originalName] = dummyAddress;
+                }
+                else { 
+                    output.WriteU24(References[qi.reference]);
+                }
             
             }
 
@@ -212,13 +218,14 @@ namespace SEBS
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
-        private void packCategory(SEBSProjectCategory cat, SEBSCategory catin)
+        private void packCategory(SEBSProjectCategory cat, SEBSCategory catin, int catid = 0)
         {
-
+            
 
             Console.WriteLine($"Assembling {cat.CategoryName}");
   
             var catBase = output.BaseStream.Position;
+            CatRefs[catid] = catBase;
             var sectData = File.ReadAllBytes($"{Folder}/{cat.CategoryPath}/relocationdata.seb");
             output.Write(sectData);
             output.Flush();
@@ -258,6 +265,7 @@ namespace SEBS
 
                 var lines = File.ReadAllLines($"{Folder}/{cat.CategoryPath}/{file}");
                 var assembler = new SEBSBMSAssembler(file, output, lines);
+                assembler.CatAddresses = CatRefs;
                 assembler.fillCommands();
                 var refFile = assembler.checkGetReference();
                 if (refFile!=null)

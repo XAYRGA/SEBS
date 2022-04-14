@@ -55,6 +55,8 @@ namespace SEBS
             stackName = stackN;
             output = op;
         }
+
+        public Dictionary<int, long> CatAddresses;
    
         private int parseNumber(string num)
         {
@@ -105,6 +107,42 @@ namespace SEBS
                        
                 }
                 return;
+            } else if (name[0] == '*')
+            {
+                var command = name.Substring(1);
+                var arg = command.Split(',');
+                if (command=="CATREF")
+                {
+                    var catid = arg[1];
+                    var ofs = arg[2];
+
+
+                    var id = Int32.Parse(catid, System.Globalization.NumberStyles.Number);
+                    var adr = CatAddresses[id];
+                    var offset = Int32.Parse(ofs, System.Globalization.NumberStyles.HexNumber);
+                    var bb = (int)(adr + offset);
+
+                    switch (type)
+                    {
+                        case SEBAssemblerLabelType.INT8:
+                            output.Write((byte)bb);
+                            break;
+                        case SEBAssemblerLabelType.INT16:
+                            output.Write((short)bb);
+                            break;
+                        case SEBAssemblerLabelType.INT24:
+                            output.WriteU24(bb);
+                            break;
+                        case SEBAssemblerLabelType.INT32:
+                            output.WriteU24(bb);
+                            break;
+                        default:
+                            throw new Exception("Whoops.");
+                            break;
+
+                    }
+
+                }
             }
 
             labelReferences.Enqueue(new SEBSAssemblerLabelRef()

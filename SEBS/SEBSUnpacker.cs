@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using xayrga.asn;
+using xayrga;
 using Be.IO;
 using System.IO;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ namespace SEBS
         BeBinaryReader Reader;
 
         Dictionary<long, string> Deduplicator = new Dictionary<long, string>();
-
+        Dictionary<long, string> Externals = new Dictionary<long, string>();
         public SEBSUnpacker(Stream SEBMS, SEBSInfoFile prj, JASNTable Stbl)
         {
             InfoFile = prj;
@@ -67,18 +68,45 @@ namespace SEBS
             File.WriteAllText($"{to_folder}/sebs.json", JsonConvert.SerializeObject(Proj, Formatting.Indented));
         }
 
+
+        private uint[] readJumptable()
+        {
+            Queue<uint> addrtable = new Queue<uint>();
+            while (true)
+            {
+                var address = Reader.ReadU24();
+                if ((address >> 16) > 0x20) // This is arbitrary.  But i think if the SE.BMS is > 2MB , or you know, 1/12 of the gamecube's RAM that it should be invalid. 
+                    break;
+                addrtable.Enqueue(address);
+            }
+            var ret = new uint[addrtable.Count];
+            var i = 0;
+            while (addrtable.Count > 0)
+            {
+                ret[i] = addrtable.Dequeue();
+                i++;
+            }
+            return ret;
+        }
+
         private SEBSProjectCategory unpack_category(SEBSCategory cat, string to_folder, JASNCategory aSECategory)
         {
             var SECat = new SEBSProjectCategory();
             if (aSECategory != null)
                     cmdarg.assert(cat.JumpTable.SuggestedLength > aSECategory.waves.Length, $"project is not sane: #ASNCategory<#ProjectTableEntry {cat.JumpTable.SuggestedLength} > {aSECategory.waves.Length}");
             Reader.BaseStream.Position = cat.RelocatableDataStart;
+
+
+            
+            Console.WriteLine($"{aSECategory.waves.Length} {cat.JumpTable.SuggestedLength}");
+            
+           
             SECat.includes = new string[cat.JumpTable.SuggestedLength];
             var reloc_data = Reader.ReadBytes(cat.RelocatableDataLength);
             File.WriteAllBytes($"{to_folder}/relocationdata.seb", reloc_data);
             SECat.RelocationDataFile = "relocationdata.seb";
 
-           
+    
             Reader.BaseStream.Position = cat.JumpTable.InstructionInnerOffset + cat.RelocatableDataStart;
             var command = Reader.ReadByte();
             Console.WriteLine($"{command:X}");
@@ -86,6 +114,11 @@ namespace SEBS
             var register = Reader.ReadByte();
             Reader.BaseStream.Position = Reader.ReadU24();
             Console.WriteLine($"{Reader.BaseStream.Position:X}");
+            var anch = Reader.BaseStream.Position;
+            var bbq = readJumptable();
+            Console.WriteLine($"ASE Size {aSECategory.waves.Length} CFG Size {cat.JumpTable.SuggestedLength} RJT size {bbq.Length}");
+
+            Reader.BaseStream.Position = anch;
 
             var DisableImplicit = cmdarg.findDynamicFlagArgument("noimplicitjumpstop");
             for (int i = 0; i < cat.JumpTable.SuggestedLength; i++) {

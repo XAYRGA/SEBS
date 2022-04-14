@@ -178,7 +178,7 @@ namespace SEBS
                             var trackID = reader.ReadByte();
                             var address = (int)reader.ReadU24();
                             var label = getLabel("TRACK", address, $"OPEN");
-                            output.AppendLine($"OPENTRACK h{trackID:X} {label}");
+                            output.AppendLine($"OPENTRACK h{trackID:X} {label} #OCA: 0x{address:X} FRM: {currentAddress:X}");
                             var outP = -1;
                             if (!tryBackseekLabel4Tracks((int)address, label))
                                 queueItems.Enqueue(new SEBSDissasemblerQueueItem()
